@@ -62,7 +62,7 @@ async def test_organizer_events_endpoint_uses_continuation() -> None:
     async def request(
         method: str,
         url: str,
-        headers: Mapping[str, str] | None = None,
+        headers: Mapping[str, str] | None = None,  # pylint: disable=unused-argument
         params: Mapping[str, str | int] | None = None,
     ) -> FakeResponse:
         calls.append(ApiCall(method=method, url=url, params=params))
@@ -120,5 +120,6 @@ async def test_logo_fetch_uses_image_request_headers() -> None:
 
     assert await client.async_get_logo_bytes("https://img.example/logo.png") == b"image"
     assert captured_headers is not None
-    assert captured_headers["Accept"].startswith("image/")
-    assert captured_headers["User-Agent"] == "HomeAssistant-Eventbrite/0.1"
+    headers = dict(captured_headers)
+    assert headers["Accept"].startswith("image/")
+    assert headers["User-Agent"] == "HomeAssistant-Eventbrite/0.1"

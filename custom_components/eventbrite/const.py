@@ -6,7 +6,7 @@ from homeassistant.const import Platform
 
 DOMAIN = "eventbrite"
 
-CONF_API_TOKEN = "api_token"
+CONF_API_TOKEN = "api_token"  # nosec B105
 CONF_COLLECTION_ID = "collection_id"
 CONF_EVENT_STATUSES = "event_statuses"
 CONF_FILTER_EVENT_NAME_QUERY = "filter_event_name_query"

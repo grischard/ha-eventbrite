@@ -110,6 +110,9 @@ action:
 uv run --extra test ruff format .
 uv run --extra test ruff check .
 uv run --with ty ty check
+uv run --with mypy mypy custom_components tests
+uv run --with bandit bandit -r custom_components
+uv run --with pylint pylint custom_components tests
 uv run --extra test pytest
 ```
 

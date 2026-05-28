@@ -10,7 +10,11 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
 
-from .const import NO_UPCOMING_EVENTS
+from .const import (
+    CONF_COLLECTION_ID,
+    CONF_ORGANIZER_ID,
+    NO_UPCOMING_EVENTS,
+)
 from .coordinator import EventbriteCoordinator
 from .entity import EventbriteEntity
 from .models import event_as_sensor_payload, event_as_upcoming_sensor_payload
@@ -91,7 +95,33 @@ class EventbriteFeaturedEventSensor(EventbriteEntity, SensorEntity):
 
         event = self.coordinator.featured_event
         if event is None:
-            return {}
+            cfg = self.coordinator.config_entry.data
+
+            def _fallback_url() -> str:
+                organizer = cfg.get(CONF_ORGANIZER_ID)
+                collection = cfg.get(CONF_COLLECTION_ID)
+                if isinstance(organizer, str) and organizer:
+                    return f"https://www.eventbrite.com/o/{organizer}"
+                if isinstance(collection, str) and collection:
+                    return f"https://www.eventbrite.com/organizations/{collection}"
+                return "https://www.eventbrite.com/"
+
+            return {
+                "id": None,
+                "title": NO_UPCOMING_EVENTS,
+                "starts_at": None,
+                "ends_at": None,
+                "url": _fallback_url(),
+                "summary": None,
+                "description": None,
+                "logo_url": None,
+                "venue_name": None,
+                "venue_address": None,
+                "organiser_name": None,
+                "status": None,
+                "is_online": False,
+                "event_id": None,
+            }
         return event_as_sensor_payload(
             event,
             logo_entity_id=self._logo_entity_id(),

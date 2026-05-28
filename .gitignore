@@ -1,6 +1,9 @@
-.venv/
+.mypy_cache/
 .pytest_cache/
 .ruff_cache/
+.trunk/
+.venv/
+.vscode/
 __pycache__/
 *.py[cod]
 .DS_Store

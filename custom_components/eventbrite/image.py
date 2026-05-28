@@ -18,7 +18,7 @@ from .entity import EventbriteEntity
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(
+async def async_setup_entry(  # NOSONAR
     hass: HomeAssistant,
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
@@ -83,7 +83,7 @@ class EventbriteFeaturedLogoImage(EventbriteEntity, ImageEntity):
                 err,
             )
             return None
-        except Exception as err:
+        except Exception as err:  # pylint: disable=broad-exception-caught
             _LOGGER.exception(
                 "Unexpected error fetching Eventbrite featured event logo from %s: %s",
                 logo_url,

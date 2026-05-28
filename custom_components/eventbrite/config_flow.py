@@ -246,7 +246,7 @@ def _string_value(user_input: UserInput, key: str) -> str:
 
 def _int_value(user_input: UserInput, key: str) -> int:
     value = user_input[key]
-    if type(value) is int:
+    if isinstance(value, int):
         return value
     if isinstance(value, float) and value.is_integer():
         return int(value)

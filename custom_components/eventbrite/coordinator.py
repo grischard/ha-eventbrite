@@ -185,7 +185,7 @@ def _option(config_entry: ConfigEntry, key: str) -> object:
 
 def _option_int(config_entry: ConfigEntry, key: str) -> int:
     value = _option(config_entry, key)
-    if type(value) is int:
+    if isinstance(value, int):
         return value
     if isinstance(value, float) and value.is_integer():
         return int(value)
