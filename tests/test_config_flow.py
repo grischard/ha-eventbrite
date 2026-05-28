@@ -28,8 +28,8 @@ async def test_config_flow_success(hass: HomeAssistant) -> None:
         "collection_id": "",
         "search_query": "",
         "event_statuses": DEFAULT_EVENT_STATUSES,
-        "max_events": DEFAULT_MAX_EVENTS,
-        "scan_interval_minutes": DEFAULT_SCAN_INTERVAL_MINUTES,
+        "max_events": float(DEFAULT_MAX_EVENTS),
+        "scan_interval_minutes": float(DEFAULT_SCAN_INTERVAL_MINUTES),
         "filter_event_name_query": "",
     }
 
@@ -44,6 +44,8 @@ async def test_config_flow_success(hass: HomeAssistant) -> None:
     assert result["type"] == "create_entry"
     assert result["title"] == "My Org"
     assert result["data"][CONF_ORGANIZER_ID] == "org-1"
+    assert result["data"]["max_events"] == DEFAULT_MAX_EVENTS
+    assert result["data"]["scan_interval_minutes"] == DEFAULT_SCAN_INTERVAL_MINUTES
 
 
 async def test_config_flow_requires_source(hass: HomeAssistant) -> None:

@@ -67,9 +67,10 @@ class EventbriteConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 except EventbriteError:
                     errors["base"] = "cannot_connect"
                 else:
+                    data = _normalise_user_input(user_input)
                     return self.async_create_entry(
-                        title=_string_value(user_input, CONF_NAME),
-                        data=user_input,
+                        title=_string_value(data, CONF_NAME),
+                        data=data,
                     )
 
         return self.async_show_form(
@@ -102,7 +103,9 @@ class EventbriteOptionsFlowHandler(config_entries.OptionsFlow):
                         errors[CONF_FILTER_EVENT_NAME_QUERY] = "invalid_regex"
 
             if not errors:
-                return self.async_create_entry(title="", data=user_input)
+                return self.async_create_entry(
+                    title="", data=_normalise_user_input(user_input)
+                )
 
         return self.async_show_form(
             step_id="init",
@@ -215,6 +218,14 @@ def _validate_user_input(user_input: UserInput) -> dict[str, str]:
     return errors
 
 
+def _normalise_user_input(user_input: UserInput) -> UserInput:
+    data = dict(user_input)
+    for key in (CONF_MAX_EVENTS, CONF_SCAN_INTERVAL_MINUTES):
+        if key in data:
+            data[key] = _int_value(data, key)
+    return data
+
+
 def _source_unique_id(user_input: UserInput) -> str:
     if organizer_id := user_input.get(CONF_ORGANIZER_ID):
         return f"eventbrite_organizer_{organizer_id}"
@@ -231,3 +242,14 @@ def _string_value(user_input: UserInput, key: str) -> str:
     if not isinstance(value, str):
         raise TypeError(f"Expected {key} to be a string")
     return value
+
+
+def _int_value(user_input: UserInput, key: str) -> int:
+    value = user_input[key]
+    if type(value) is int:
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, str):
+        return int(value)
+    raise TypeError(f"Expected {key} to be an integer")

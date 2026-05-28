@@ -81,8 +81,8 @@ async def test_setup_entry_creates_entities_and_unloads(
             CONF_API_TOKEN: "token",
             CONF_ORGANIZER_ID: "52408308",
             CONF_EVENT_STATUSES: "live",
-            CONF_MAX_EVENTS: 10,
-            CONF_SCAN_INTERVAL_MINUTES: 30,
+            CONF_MAX_EVENTS: 10.0,
+            CONF_SCAN_INTERVAL_MINUTES: 30.0,
         },
     )
     entry.add_to_hass(hass)

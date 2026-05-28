@@ -182,8 +182,10 @@ def _option(config_entry: ConfigEntry, key: str) -> object:
 
 def _option_int(config_entry: ConfigEntry, key: str) -> int:
     value = _option(config_entry, key)
-    if isinstance(value, int):
+    if type(value) is int:
         return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
     if isinstance(value, str):
         return int(value)
     raise TypeError(f"Expected integer option for {key}")
