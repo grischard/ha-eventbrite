@@ -55,6 +55,25 @@ def test_normalise_eventbrite_event() -> None:
     assert event.organiser_name == "Example Org"
 
 
+def test_normalise_prefers_original_logo_url() -> None:
+    event = normalise_eventbrite_event(
+        event_payload(
+            logo={
+                "url": "https://img.example/cropped.png",
+                "width": 400,
+                "height": 400,
+                "original": {
+                    "url": "https://img.example/original.png",
+                    "width": 1200,
+                    "height": 600,
+                },
+            }
+        )
+    )
+
+    assert event.logo_url == "https://img.example/original.png"
+
+
 def test_normalise_prefer_html_description_over_text() -> None:
     event = normalise_eventbrite_event(
         event_payload(

@@ -75,7 +75,8 @@ def normalise_eventbrite_event(
         url=_optional_str(payload.get("url")),
         description=description,
         summary=summary,
-        logo_url=_optional_str(logo.get("url") or logo_original.get("url")),
+        logo_url=_optional_str(logo_original.get("url"))
+        or _optional_str(logo.get("url")),
         logo_width=_optional_int(logo.get("width") or logo_original.get("width")),
         logo_height=_optional_int(logo.get("height") or logo_original.get("height")),
         venue_name=_optional_str(venue.get("name")),
