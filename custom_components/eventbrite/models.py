@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from html import unescape
 from typing import cast
 
-from .types import EventbritePayloadMapping, EventbriteSensorPayload
+from .types import (
+    EventbritePayloadMapping,
+    EventbriteSensorPayload,
+    EventbriteUpcomingSensorPayload,
+)
 
 
 @dataclass(slots=True, frozen=True)
@@ -84,15 +88,18 @@ def normalise_eventbrite_event(
 
 
 def event_as_sensor_payload(
-    event: EventbriteEvent, *, logo_entity_id: str | None = None
+    event: EventbriteEvent,
+    *,
+    logo_entity_id: str | None = None,
+    localise_datetime: Callable[[datetime], datetime] | None = None,
 ) -> EventbriteSensorPayload:
     """Return a stable JSON-like payload for sensor attributes."""
 
     payload: EventbriteSensorPayload = {
         "id": event.id,
         "title": event.title,
-        "starts_at": event.start.isoformat(),
-        "ends_at": event.end.isoformat(),
+        "starts_at": _serialise_datetime(event.start, localise_datetime),
+        "ends_at": _serialise_datetime(event.end, localise_datetime),
         "url": event.url,
         "summary": event.summary,
         "description": event.description,
@@ -106,6 +113,34 @@ def event_as_sensor_payload(
     if logo_entity_id is not None:
         payload["logo_entity_id"] = logo_entity_id
     return payload
+
+
+def event_as_upcoming_sensor_payload(
+    event: EventbriteEvent,
+    *,
+    localise_datetime: Callable[[datetime], datetime] | None = None,
+) -> EventbriteUpcomingSensorPayload:
+    """Return a compact upcoming-event payload for recorder-safe attributes."""
+
+    return {
+        "id": event.id,
+        "title": event.title,
+        "starts_at": _serialise_datetime(event.start, localise_datetime),
+        "ends_at": _serialise_datetime(event.end, localise_datetime),
+        "url": event.url,
+        "venue_name": event.venue_name,
+        "status": event.status,
+        "is_online": event.is_online,
+    }
+
+
+def _serialise_datetime(
+    value: datetime,
+    localise_datetime: Callable[[datetime], datetime] | None,
+) -> str:
+    if localise_datetime is not None:
+        value = localise_datetime(value)
+    return value.isoformat()
 
 
 def _required_str(payload: EventbritePayloadMapping, key: str) -> str:

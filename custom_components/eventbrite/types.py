@@ -29,3 +29,16 @@ class EventbriteSensorPayload(TypedDict):
     is_online: bool
     logo_entity_id: NotRequired[str]
     event_id: NotRequired[str]
+
+
+class EventbriteUpcomingSensorPayload(TypedDict):
+    """Compact upcoming-event payload exposed in sensor attributes."""
+
+    id: str
+    title: str
+    starts_at: str
+    ends_at: str
+    url: str | None
+    venue_name: str | None
+    status: str | None
+    is_online: bool

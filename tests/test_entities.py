@@ -5,8 +5,10 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
+from zoneinfo import ZoneInfo
 
 import pytest
+from homeassistant.util import dt as dt_util
 
 from custom_components.eventbrite.calendar import _calendar_event
 from custom_components.eventbrite.image import (
@@ -15,6 +17,7 @@ from custom_components.eventbrite.image import (
 )
 from custom_components.eventbrite.models import EventbriteEvent
 from custom_components.eventbrite.select import _event_label
+from custom_components.eventbrite.sensor import EventbriteUpcomingEventsSensor
 
 
 def make_event(
@@ -52,9 +55,40 @@ def test_calendar_event_uses_standard_fields_only() -> None:
 
 
 def test_select_label_is_compact() -> None:
-    label = _event_label(1, make_event())
+    try:
+        dt_util.set_default_time_zone(ZoneInfo("America/New_York"))
 
-    assert label.startswith("1 · Opening Night ·")
+        label = _event_label(1, make_event())
+
+        assert label == "1 · Opening Night · Tue 2:00 PM"
+    finally:
+        dt_util.set_default_time_zone(UTC)
+
+
+def test_upcoming_sensor_uses_compact_local_time_payload() -> None:
+    try:
+        dt_util.set_default_time_zone(ZoneInfo("America/New_York"))
+        sensor = EventbriteUpcomingEventsSensor.__new__(EventbriteUpcomingEventsSensor)
+        sensor.coordinator = SimpleNamespace(upcoming_events=(make_event(),))
+
+        attributes = sensor.extra_state_attributes
+        events = attributes["events"]
+
+        assert isinstance(events, list)
+        assert events == [
+            {
+                "id": "1",
+                "title": "Opening Night",
+                "starts_at": "2030-01-01T14:00:00-05:00",
+                "ends_at": "2030-01-01T16:00:00-05:00",
+                "url": "https://eventbrite.example/events/1",
+                "venue_name": "Main Hall",
+                "status": "live",
+                "is_online": False,
+            }
+        ]
+    finally:
+        dt_util.set_default_time_zone(UTC)
 
 
 def test_content_type_from_url() -> None:

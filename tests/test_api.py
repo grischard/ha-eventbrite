@@ -9,6 +9,7 @@ from typing import ClassVar, cast
 
 import pytest
 from aiohttp import ClientSession
+from yarl import URL
 
 from custom_components.eventbrite.api import EventbriteApiClient
 from custom_components.eventbrite.const import (
@@ -49,6 +50,9 @@ class FakeResponse:
 
     async def json(self) -> EventbritePayload:
         return self._payload
+
+    async def read(self) -> bytes:
+        return b"image"
 
 
 @pytest.mark.asyncio
@@ -96,3 +100,25 @@ async def test_organizer_events_endpoint_uses_continuation() -> None:
     assert calls[0].params["status"] == "live"
     assert calls[1].params is not None
     assert calls[1].params["continuation"] == "next-page"
+
+
+@pytest.mark.asyncio
+async def test_logo_fetch_uses_image_request_headers() -> None:
+    captured_headers: Mapping[str, str] | None = None
+
+    async def get(
+        url: URL,
+        headers: Mapping[str, str] | None = None,
+    ) -> FakeResponse:
+        nonlocal captured_headers
+        captured_headers = headers
+        assert isinstance(url, URL)
+        assert str(url) == "https://img.example/logo.png"
+        return FakeResponse({})
+
+    client = EventbriteApiClient(cast(ClientSession, SimpleNamespace(get=get)), "token")
+
+    assert await client.async_get_logo_bytes("https://img.example/logo.png") == b"image"
+    assert captured_headers is not None
+    assert captured_headers["Accept"].startswith("image/")
+    assert captured_headers["User-Agent"] == "HomeAssistant-Eventbrite/0.1"

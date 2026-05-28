@@ -8,6 +8,7 @@ from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from .coordinator import EventbriteCoordinator
 from .entity import EventbriteEntity
@@ -64,8 +65,8 @@ def _calendar_event(event: EventbriteEvent) -> CalendarEvent:
     return CalendarEvent(
         uid=event.id,
         summary=event.title,
-        start=event.start,
-        end=event.end,
+        start=dt_util.as_local(event.start),
+        end=dt_util.as_local(event.end),
         location=event.venue_name or event.venue_address,
         description="\n\n".join(description_parts) or None,
     )

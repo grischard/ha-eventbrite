@@ -9,6 +9,7 @@ from typing import cast
 from aiohttp import ClientError, ClientResponse, ClientSession
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from yarl import URL
 
 from .const import (
     CONF_COLLECTION_ID,
@@ -118,9 +119,17 @@ class EventbriteApiClient:
     async def async_get_logo_bytes(self, url: str) -> bytes:
         """Fetch logo image bytes from Eventbrite's CDN."""
 
+        headers = {
+            "Accept": (
+                "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
+            ),
+            "User-Agent": "HomeAssistant-Eventbrite/0.1",
+        }
         try:
             async with asyncio.timeout(REQUEST_TIMEOUT):
-                response = await self.session.get(url)
+                response = await self.session.get(
+                    URL(url, encoded=True), headers=headers
+                )
         except (TimeoutError, ClientError) as err:
             raise EventbriteResponseError("Unable to fetch Eventbrite logo") from err
 

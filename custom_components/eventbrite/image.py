@@ -76,8 +76,12 @@ class EventbriteFeaturedLogoImage(EventbriteEntity, ImageEntity):
         _, logo_url = logo_key
         try:
             image_bytes = await self.coordinator.client.async_get_logo_bytes(logo_url)
-        except EventbriteError:
-            _LOGGER.warning("Unable to fetch Eventbrite featured event logo")
+        except EventbriteError as err:
+            _LOGGER.warning(
+                "Unable to fetch Eventbrite featured event logo from %s: %s",
+                logo_url,
+                err,
+            )
             return None
 
         self._cached_logo_key = logo_key

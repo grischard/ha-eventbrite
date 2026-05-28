@@ -8,11 +8,12 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from .const import NO_UPCOMING_EVENTS
 from .coordinator import EventbriteCoordinator
 from .entity import EventbriteEntity
-from .models import event_as_sensor_payload
+from .models import event_as_sensor_payload, event_as_upcoming_sensor_payload
 
 
 async def async_setup_entry(  # NOSONAR
@@ -56,7 +57,9 @@ class EventbriteUpcomingEventsSensor(EventbriteEntity, SensorEntity):
 
         return {
             "events": [
-                event_as_sensor_payload(event)
+                event_as_upcoming_sensor_payload(
+                    event, localise_datetime=dt_util.as_local
+                )
                 for event in self.coordinator.upcoming_events
             ]
         }
@@ -89,9 +92,11 @@ class EventbriteFeaturedEventSensor(EventbriteEntity, SensorEntity):
         event = self.coordinator.featured_event
         if event is None:
             return {}
-        return event_as_sensor_payload(event, logo_entity_id=self._logo_entity_id()) | {
-            "event_id": event.id
-        }
+        return event_as_sensor_payload(
+            event,
+            logo_entity_id=self._logo_entity_id(),
+            localise_datetime=dt_util.as_local,
+        ) | {"event_id": event.id}
 
     def _logo_entity_id(self) -> str:
         object_id = self._attr_suggested_object_id

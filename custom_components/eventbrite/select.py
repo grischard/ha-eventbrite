@@ -7,6 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from .const import NO_UPCOMING_EVENTS
 from .coordinator import EventbriteCoordinator
@@ -77,5 +78,5 @@ class EventbriteDisplayEventSelect(EventbriteEntity, SelectEntity):
 
 
 def _event_label(index: int, event: EventbriteEvent) -> str:
-    starts_at = event.start.astimezone().strftime("%a %-I:%M %p")
+    starts_at = dt_util.as_local(event.start).strftime("%a %-I:%M %p")
     return f"{index} · {event.title} · {starts_at}"
