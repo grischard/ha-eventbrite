@@ -1,0 +1,46 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Eventbrite",
+        "description": "Connect an Eventbrite event source.",
+        "data": {
+          "name": "Name",
+          "api_token": "API token",
+          "organizer_id": "Organizer ID",
+          "collection_id": "Collection ID",
+          "search_query": "Search query",
+          "event_statuses": "Event statuses",
+          "max_events": "Maximum events",
+          "scan_interval_minutes": "Scan interval in minutes",
+          "filter_event_name_query": "Event title regex filter"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to connect to Eventbrite.",
+      "invalid_auth": "Eventbrite rejected the API token.",
+      "invalid_regex": "The regular expression is invalid.",
+      "source_required": "Provide an organizer ID, collection ID, or search query."
+    },
+    "abort": {
+      "already_configured": "This Eventbrite source is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Eventbrite options",
+        "data": {
+          "event_statuses": "Event statuses",
+          "max_events": "Maximum events",
+          "scan_interval_minutes": "Scan interval in minutes",
+          "filter_event_name_query": "Event title regex filter"
+        }
+      }
+    },
+    "error": {
+      "invalid_regex": "The regular expression is invalid."
+    }
+  }
+}
