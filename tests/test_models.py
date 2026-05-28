@@ -55,6 +55,19 @@ def test_normalise_eventbrite_event() -> None:
     assert event.organiser_name == "Example Org"
 
 
+def test_normalise_prefer_html_description_over_text() -> None:
+    event = normalise_eventbrite_event(
+        event_payload(
+            description={
+                "text": "Short summary",
+                "html": "<p>Full <strong>description</strong></p>",
+            }
+        )
+    )
+
+    assert event.description == "Full description"
+
+
 def test_event_as_sensor_payload_includes_logo_entity_id() -> None:
     event = normalise_eventbrite_event(event_payload())
 

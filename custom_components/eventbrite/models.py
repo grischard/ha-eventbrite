@@ -170,7 +170,10 @@ def _localized_text(value: object) -> str | None:
     if not isinstance(value, Mapping):
         return None
     mapping = _as_mapping(value)
-    return _clean_text(mapping.get("text") or mapping.get("html"))
+    html = mapping.get("html")
+    if isinstance(html, str) and html:
+        return _clean_text(html)
+    return _clean_text(mapping.get("text"))
 
 
 def _clean_text(value: object) -> str | None:
