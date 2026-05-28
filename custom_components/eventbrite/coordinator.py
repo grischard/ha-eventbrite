@@ -123,8 +123,11 @@ class EventbriteCoordinator(DataUpdateCoordinator[EventbriteCoordinatorData]):
             raise UpdateFailed(f"Unexpected Eventbrite error: {err}") from err
 
         events = self._normalise_events(payloads)
-        if self.selected_event_id not in {event.id for event in events}:
-            self.selected_event_id = events[0].id if events else None
+        event_ids = {event.id for event in events}
+        if not events:
+            self.selected_event_id = None
+        elif self.selected_event_id not in event_ids:
+            self.selected_event_id = events[0].id
 
         return EventbriteCoordinatorData(events=tuple(events))
 

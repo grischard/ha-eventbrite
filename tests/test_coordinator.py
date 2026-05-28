@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
+
+import pytest
 
 from custom_components.eventbrite.const import (
     CONF_EVENT_STATUSES,
     CONF_FILTER_EVENT_NAME_QUERY,
     CONF_MAX_EVENTS,
+    CONF_ORGANIZER_ID,
 )
 from custom_components.eventbrite.coordinator import EventbriteCoordinator
 from custom_components.eventbrite.types import EventbritePayload
@@ -66,3 +70,29 @@ def test_coordinator_skips_malformed_event_when_others_are_valid() -> None:
     )
 
     assert [event.id for event in events] == ["good"]
+
+
+@pytest.mark.asyncio
+async def test_coordinator_sets_first_event_as_featured_after_initial_fetch() -> None:
+    coordinator = EventbriteCoordinator.__new__(EventbriteCoordinator)
+    coordinator.client = SimpleNamespace(
+        async_get_events=AsyncMock(
+            return_value=[
+                payload("2", "Second Event", "2030-01-02T10:00:00Z"),
+                payload("1", "First Event", "2030-01-01T10:00:00Z"),
+            ]
+        )
+    )
+    coordinator.config_entry = SimpleNamespace(
+        data={
+            CONF_ORGANIZER_ID: "52408308",
+            CONF_EVENT_STATUSES: "live",
+            CONF_MAX_EVENTS: 10,
+        },
+        options={},
+    )
+    coordinator.selected_event_id = None
+
+    await coordinator._async_update_data()
+
+    assert coordinator.selected_event_id == "1"

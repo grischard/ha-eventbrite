@@ -127,3 +127,18 @@ async def test_image_entity_returns_none_without_logo() -> None:
     image._cached_logo_bytes = None
 
     assert await image.async_image() is None
+
+
+@pytest.mark.asyncio
+async def test_image_entity_handles_unexpected_logo_fetch_errors() -> None:
+    image = EventbriteFeaturedLogoImage.__new__(EventbriteFeaturedLogoImage)
+    image.coordinator = SimpleNamespace(
+        featured_event=make_event(),
+        client=SimpleNamespace(
+            async_get_logo_bytes=AsyncMock(side_effect=ValueError("bad url"))
+        ),
+    )
+    image._cached_logo_key = None
+    image._cached_logo_bytes = None
+
+    assert await image.async_image() is None

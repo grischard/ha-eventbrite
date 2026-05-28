@@ -83,6 +83,13 @@ class EventbriteFeaturedLogoImage(EventbriteEntity, ImageEntity):
                 err,
             )
             return None
+        except Exception as err:
+            _LOGGER.exception(
+                "Unexpected error fetching Eventbrite featured event logo from %s: %s",
+                logo_url,
+                err,
+            )
+            return None
 
         self._cached_logo_key = logo_key
         self._cached_logo_bytes = image_bytes
